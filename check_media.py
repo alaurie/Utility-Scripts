@@ -30,14 +30,10 @@ def process_files(file_list):
     for file in file_list:
         # Change to file dir and generate probe info and new_filename
         chdir(file.parent)
-        print(f"Checking file {file.name}")
         info = ffmpeg.probe(file, select_streams="a:0")
         new_filename = str(file.name).split(".", maxsplit=1)[0] + ".mp4"
 
         if file.suffix == ".avi":
-            print(
-                "AVI file found, transcoding to MP4 for compatibility with Samsung TV"
-            )
             try:
                 (
                     ffmpeg.input(file.name)
@@ -46,12 +42,9 @@ def process_files(file_list):
                 )
                 Path.unlink(file)
             except ffmpeg.Error as error:
-                print(f"Failed to transcode file {file.name}, moving to next file.")
                 print(error.stderr)
                 continue
-            print(f"File has been transcoded to: {new_filename}")
         elif info["streams"][0]["codec_name"] != "ac3":
-            print(f"File {file.name} transcoding for compatibility with Samsung TV")
             try:
                 (
                     ffmpeg.input(str(file.name))
@@ -60,12 +53,11 @@ def process_files(file_list):
                 )
                 Path.unlink(file)
             except ffmpeg.Error as error:
-                print(f"Failed to transcode file {file.name}, moving to next file.")
                 print(error.stderr)
                 continue
-            print(f"File has been transcoded to: {new_filename}")
+
         else:
-            print(f"No issues detected with {file.name}")
+            continue
 
 
 if __name__ == "__main__":
